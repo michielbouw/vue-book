@@ -1,8 +1,11 @@
 <template>
   <div>
     <h2>{{ settings.listTitle }}</h2>
-    <Filterbar v-on="$listeners"></Filterbar>
-    <ul v-if="listItems.length">
+    <Filterbar v-on="$listeners" :isDisabled="loading"></Filterbar>
+    <p v-if="loading" class="loading">
+      {{ settings.listLoadingText }}
+    </p>
+    <ul v-else-if="listItems.length">
       <li v-for="item in listItems" :key="item.id">
         <ListItem :item="item" />
       </li>
@@ -26,6 +29,7 @@ export default {
     ListItem,
   },
   props: {
+    loading: Boolean,
     listItems: Array,
   },
 

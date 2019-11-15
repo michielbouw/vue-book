@@ -1,16 +1,12 @@
 <template>
   <div class="container">
-    <span v-if="loading" class="loading">
-      {{ settings.listLoadingText }}
-    </span>
-    <div v-else>
-      <List
-        :listItems="filteredList"
-        @search-by="onSearchBy"
-        @filter-by="onFilterBy"
-        @sort-by="onSortBy"
-      />
-    </div>
+    <List
+      :listItems="filteredList"
+      :loading="loading"
+      @search-by="onSearchBy"
+      @filter-by="onFilterBy"
+      @sort-by="onSortBy"
+    />
   </div>
 </template>
 
@@ -43,7 +39,6 @@ export default {
   },
 
   computed: mapState({
-    settings: 'settings',
     loading: state => state.loading.list,
     list: 'list',
   }),

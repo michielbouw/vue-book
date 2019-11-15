@@ -1,5 +1,5 @@
 <template>
-  <div class="filterbar">
+  <div class="filterbar" :class="{ filterbar__disabled: isDisabled }">
     <span>
       <div class="small-text">Search</div>
       <input
@@ -54,6 +54,10 @@ import { mapState } from 'vuex';
 export default {
   name: 'Filterbar',
 
+  props: {
+    isDisabled: Boolean,
+  },
+
   computed: mapState({
     categories: state => state.settings.categories,
   }),
@@ -83,6 +87,7 @@ export default {
 
 <style lang="scss" scoped>
 .filterbar {
+  position: relative;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -91,6 +96,19 @@ export default {
   padding: 8px 8px 0 8px;
   border-radius: 4px;
   background-color: #f2f5f5;
+
+  &__disabled {
+    &:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      background-color: rgba(255, 255, 255, 0.5);
+    }
+  }
 
   & > span {
     margin-bottom: 8px;
