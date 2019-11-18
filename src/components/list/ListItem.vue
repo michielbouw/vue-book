@@ -2,7 +2,8 @@
   <div class="list-item flex-row" :class="{ 'list-item__expanded': expanded }">
     <span class="list-item__category small-text">{{ item.category }}</span>
     <span class="list-item__dates small-text">
-      📅 edited {{ formatDateChanged }} &amp; created {{ formatDateCreated }}
+      📅 edited {{ formatDateChanged }} &amp; created
+      {{ formatDateCreated }}
     </span>
 
     <div class="left">
@@ -12,12 +13,7 @@
         alt="item.title"
       />
       <span v-else>
-        <img
-          v-for="(imageSrc, index) in item.images"
-          :key="index"
-          :src="imageSrc"
-          alt="item.title"
-        />
+        <img v-for="(imageSrc, index) in item.images" :key="index" :src="imageSrc" alt="item.title" />
       </span>
     </div>
     <div class="right">
@@ -54,9 +50,7 @@
             ? `Expand ${settings.listItemTitle}`
             : `Collapse ${settings.listItemTitle}`
         "
-      >
-        {{ !expanded ? '&#8595;' : '&#8593;' }}
-      </a>
+      >{{ !expanded ? '&#8595;' : '&#8593;' }}</a>
     </div>
   </div>
 </template>
@@ -82,10 +76,6 @@ export default {
     return {
       expanded: false,
     };
-  },
-
-  mounted() {
-    this.fetchChecklist();
   },
 
   computed: {
@@ -124,6 +114,10 @@ export default {
 
     toggleExpand() {
       this.expanded = !this.expanded;
+
+      if (this.expanded) {
+        this.fetchChecklist();
+      }
     },
 
     addChecklistItem() {
@@ -131,17 +125,11 @@ export default {
     },
 
     updateChecklistItem(item) {
-      this.$store.dispatch('updateChecklistItemByListItem', {
-        listItemId: this.item.id,
-        updatedItem: item,
-      });
+      this.$store.dispatch('updateChecklistItemByListItem', item);
     },
 
     deleteChecklistItem(itemId) {
-      this.$store.dispatch('deleteChecklistItemByListItem', {
-        listItemId: this.item.id,
-        itemId,
-      });
+      this.$store.dispatch('deleteChecklistItemByListItem', itemId);
     },
   },
 };
