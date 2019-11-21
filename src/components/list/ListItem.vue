@@ -13,7 +13,12 @@
         alt="item.title"
       />
       <span v-else>
-        <img v-for="(imageSrc, index) in item.images" :key="index" :src="imageSrc" alt="item.title" />
+        <img
+          v-for="(imageSrc, index) in item.images"
+          :key="index"
+          :src="imageSrc"
+          alt="item.title"
+        />
       </span>
     </div>
     <div class="right">
@@ -21,22 +26,16 @@
 
       <div class="flex-row">
         <div v-if="expanded" class="left">
-          <div class="small-text">{{ settings.listItemChecklistTitle }}</div>
-
-          <span v-show="loading" class="loading"></span>
-
-          <Checklist
-            v-show="!loading && checklist.length"
-            :checklist="checklist"
-            @add-item="addChecklistItem"
-            @update-item="updateChecklistItem"
-            @delete-item="deleteChecklistItem"
-          ></Checklist>
+          <slot name="left"></slot>
         </div>
 
         <div class="right">
-          <div class="small-text">{{ settings.listItemDescriptionTitle }}</div>
-          <p v-html="item.description"></p>
+          <slot name="right">
+            <div class="small-text">
+              {{ settings.listItemDescriptionTitle }}
+            </div>
+            <p v-html="item.description"></p>
+          </slot>
         </div>
       </div>
     </div>
@@ -50,25 +49,20 @@
             ? `Expand ${settings.listItemTitle}`
             : `Collapse ${settings.listItemTitle}`
         "
-      >{{ !expanded ? '&#8595;' : '&#8593;' }}</a>
+        >{{ !expanded ? '&#8595;' : '&#8593;' }}</a
+      >
     </div>
   </div>
 </template>
 
 <script>
 import moment from 'moment';
-import * as _ from 'lodash';
-import { mapGetters, mapState } from 'vuex';
-
-import Checklist from '../checklist/Checklist';
-
-const SHORT_DESCRIPTION_CHARACTERS = 400;
 
 export default {
   name: 'ListItem',
-  components: { Checklist },
 
   props: {
+    settings: Object,
     item: Object,
   },
 
@@ -79,13 +73,6 @@ export default {
   },
 
   computed: {
-    shortDescription() {
-      return _.truncate(this.item.description, {
-        length: SHORT_DESCRIPTION_CHARACTERS,
-        separator: ' ',
-      });
-    },
-
     formatDateCreated() {
       return moment(this.item.dateCreated).fromNow();
     },
@@ -93,43 +80,11 @@ export default {
     formatDateChanged() {
       return moment(this.item.dateChanged).fromNow();
     },
-
-    ...mapState(['settings']),
-
-    ...mapGetters(['loadingChecklistByListItem', 'getChecklistByListItem']),
-
-    loading() {
-      return this.loadingChecklistByListItem(this.item.id);
-    },
-
-    checklist() {
-      return this.getChecklistByListItem(this.item.id);
-    },
   },
 
   methods: {
-    fetchChecklist() {
-      this.$store.dispatch('fetchChecklistByListItem', this.item.id);
-    },
-
     toggleExpand() {
       this.expanded = !this.expanded;
-
-      if (this.expanded) {
-        this.fetchChecklist();
-      }
-    },
-
-    addChecklistItem() {
-      this.$store.dispatch('addChecklistItemByListItem', this.item.id);
-    },
-
-    updateChecklistItem(item) {
-      this.$store.dispatch('updateChecklistItemByListItem', item);
-    },
-
-    deleteChecklistItem(itemId) {
-      this.$store.dispatch('deleteChecklistItemByListItem', itemId);
     },
   },
 };

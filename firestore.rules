@@ -1,0 +1,13 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /checklistItem/{checklistItemId} {
+      allow read, update;
+      allow create, delete: if request.auth != null;
+    }
+    match /checklistItem {
+      allow read;
+      allow write: if request.auth != null;
+    }
+  }
+}

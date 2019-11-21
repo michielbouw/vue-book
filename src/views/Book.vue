@@ -1,129 +1,103 @@
 <template>
   <div class="container">
-    <List
-      :listItems="filteredList"
-      :loading="loading"
-      @search-by="onSearchBy"
-      @filter-by="onFilterBy"
-      @sort-by="onSortBy"
-    />
+    <List :settings="settings" :listItems="filteredList" :loading="loading">
+      <template #before>
+        <Filterbar
+          :categories="settings.categories"
+          :isDisabled="loading"
+          @search-by="onSearchBy"
+          @filter-by="onFilterBy"
+          @sort-by="onSortBy"
+        ></Filterbar>
+      </template>
+      <template #item="{ item }">
+        <ListItem :settings="settings" :item="item">
+          <template #left>
+            <div class="small-text">{{ settings.listItemChecklistTitle }}</div>
+
+            <span
+              v-if="loadingChecklistByListItem(item.id)"
+              class="loading"
+            ></span>
+            <Checklist
+              v-if="!loadingChecklistByListItem(item.id)"
+              :checklist="getChecklistByListItem(item.id)"
+              @add-item="addChecklistItemByListItem(item.id)"
+              @update-item="updateChecklistItemByListItem"
+              @delete-item="deleteChecklistItemByListItem"
+            />
+          </template>
+        </ListItem>
+      </template>
+    </List>
   </div>
 </template>
 
 <script>
-import * as R from 'ramda';
-import { mapState } from 'vuex';
+import { mapActions, mapGetters, mapState } from 'vuex';
 
 import List from '../components/list/List';
-
-const SORT_BY_DEFAULT = {
-  field: 'dateCreated',
-  order: 'desc',
-};
+import ListItem from '../components/list/ListItem';
+import Filterbar from '../components/common/Filterbar';
+import Checklist from '../components/checklist/Checklist';
 
 export default {
   name: 'Book',
-  components: { List },
+  components: { List, ListItem, Filterbar, Checklist },
 
-  data() {
-    return {
-      filteredList: [],
-      searchBy: null,
-      filterBy: null,
-      sortBy: SORT_BY_DEFAULT,
-    };
+  computed: {
+    ...mapState({
+      settings: 'settings',
+      loading: state => state.loading.list,
+      list: 'list',
+      filterBy: 'filterBy',
+    }),
+
+    ...mapGetters([
+      'filteredList',
+      'loadingChecklistByListItem',
+      'getChecklistByListItem',
+    ]),
   },
 
   mounted() {
     this.fetchListItems();
-    this.searchFilterSortlist();
-  },
-
-  computed: mapState({
-    loading: state => state.loading.list,
-    list: 'list',
-  }),
-
-  watch: {
-    list() {
-      this.searchFilterSortlist();
-    },
-    searchBy() {
-      this.searchFilterSortlist();
-    },
-    filterBy() {
-      this.searchFilterSortlist();
-    },
-    sortBy() {
-      this.searchFilterSortlist();
-    },
   },
 
   methods: {
-    fetchListItems() {
-      this.$store.dispatch('fetchListItems');
-    },
-
-    searchList(list) {
-      if (!this.searchBy) {
-        return list;
-      }
-
-      const value = R.toLower(this.searchBy);
-      return R.filter(
-        listItem =>
-          listItem.title && R.toLower(listItem.title).indexOf(value) > -1,
-        list
-      );
-    },
-
-    filterList(list) {
-      if (!this.filterBy) {
-        return list;
-      }
-
-      return R.filter(R.propEq('category', this.filterBy), list);
-    },
-
-    sortList(list) {
-      const { field, order } = this.sortBy;
-      const sortDirection = dir => (dir === 'desc' ? R.descend : R.ascend);
-
-      return R.sortWith(
-        [
-          R.compose(
-            sortDirection(order),
-            R.prop
-          )(field),
-        ],
-        list
-      );
-    },
-
-    searchFilterSortlist() {
-      this.filteredList = R.compose(
-        this.searchList,
-        this.filterList,
-        this.sortList
-      )(this.list);
-    },
+    ...mapActions([
+      'fetchListItems',
+      'setFilterBy',
+      'addChecklistItemByListItem',
+      'updateChecklistItemByListItem',
+      'deleteChecklistItemByListItem',
+    ]),
 
     onSearchBy(value) {
-      this.searchBy = value || null;
+      this.setFilterBy({
+        ...this.filterBy,
+        q: value || '',
+      });
     },
 
-    onFilterBy(category) {
-      this.filterBy = category || null;
+    onFilterBy(field, value) {
+      this.setFilterBy({
+        ...this.filterBy,
+        filter: {
+          field,
+          value,
+        },
+      });
     },
 
     onSortBy(field, order) {
-      this.sortBy =
-        field && order
-          ? {
-              field,
-              order,
-            }
-          : SORT_BY_DEFAULT;
+      this.setFilterBy({
+        ...this.filterBy,
+        sort: {
+          field,
+          order,
+        },
+      });
     },
   },
 };

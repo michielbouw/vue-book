@@ -1,11 +1,13 @@
 <template>
   <div>
     <h2>{{ settings.listTitle }}</h2>
-    <Filterbar v-on="$listeners" :isDisabled="loading"></Filterbar>
+
+    <slot name="before"></slot>
+
     <p v-if="loading" class="loading">{{ settings.listLoadingText }}</p>
     <ul v-else-if="listItems.length">
       <li v-for="item in listItems" :key="item.id">
-        <ListItem :item="item" />
+        <slot name="item" :item="item"></slot>
       </li>
     </ul>
     <Empty v-else />
@@ -13,25 +15,18 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
-
-import Filterbar from '../common/Filterbar';
 import Empty from '../common/Empty';
-import ListItem from './ListItem';
 
 export default {
   name: 'List',
   components: {
-    Filterbar,
     Empty,
-    ListItem,
   },
   props: {
+    settings: Object,
     loading: Boolean,
     listItems: Array,
   },
-
-  computed: mapState(['settings']),
 };
 </script>
 

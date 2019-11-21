@@ -7,13 +7,15 @@
       :item="item"
     ></ChecklistItem>
 
-    <div class="checklist__add small-text" @click="addItem">
+    <div v-if="isLoggedIn" class="checklist__add small-text" @click="addItem">
       + add item
     </div>
   </div>
 </template>
 
 <script>
+import { isLoggedIn } from '../../services/authService';
+
 import ChecklistItem from './ChecklistItem';
 
 export default {
@@ -22,6 +24,12 @@ export default {
 
   props: {
     checklist: Array,
+  },
+
+  computed: {
+    isLoggedIn() {
+      return isLoggedIn();
+    },
   },
 
   methods: {

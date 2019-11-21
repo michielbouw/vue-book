@@ -3,16 +3,25 @@
     <div class="container">
       <span class="title">
         <router-link to="/" title="Navigate to main">
-          <img alt="logo" :src="settings.mainHeaderLogo" />
-          <span>{{ settings.mainHeaderTitle }}</span>
+          <img alt="logo" :src="logoSrc" />
+          <span>{{ title }}</span>
         </router-link>
       </span>
 
       <ul>
-        <li>
-          <router-link to="/admin" title="Navigate to the administation page">
-            Admin
-          </router-link>
+        <li v-if="!isLoggedIn">
+          <router-link to="/sign-in">Sign in</router-link>
+        </li>
+        <li v-if="!isLoggedIn">
+          <router-link to="/sign-up">Sign up</router-link>
+        </li>
+        <li v-if="isLoggedIn">
+          <router-link to="/admin" title="Navigate to the administation page"
+            >Admin</router-link
+          >
+        </li>
+        <li v-if="isLoggedIn">
+          <a href="#" to="/" @click.prevent="signOut">Logout</a>
         </li>
       </ul>
     </div>
@@ -20,16 +29,30 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { signOut, isLoggedIn } from '../../services/authService';
 
 export default {
   name: 'Header',
+  props: {
+    title: String,
+    logoSrc: String,
+  },
 
-  computed: mapState(['settings']),
+  computed: {
+    isLoggedIn() {
+      return isLoggedIn();
+    },
+  },
 
   methods: {
-    navigateTo(path) {
-      this.$router.push(path);
+    signOut() {
+      signOut()
+        .then(() => {
+          window.location.href = '/';
+        })
+        .catch(() => {
+          window.location.href = '/';
+        });
     },
   },
 };
@@ -67,7 +90,9 @@ header {
 
     li {
       margin: 0;
+      margin-left: 16px;
       padding: 0;
+      display: inline;
 
       a {
         line-height: 50px;

@@ -9,38 +9,25 @@
     </span>
     <span>
       <div class="small-text">Filter by</div>
-      <select @change="filterBy($event.target.value)">
+      <select @change="filterByCategory($event.target.value)">
         <option :value="null">-- none --</option>
         <option
           v-for="(category, index) in categories"
           :key="index"
           :value="category"
+          >{{ category }}</option
         >
-          {{ category }}
-        </option>
       </select>
     </span>
     <span>
       <div class="small-text">Sort by</div>
       <select @change="sortBy($event.target.value)">
-        <option value="title-asc">
-          Title - A-Z
-        </option>
-        <option value="title-desc">
-          Title - Z-A
-        </option>
-        <option value="dateCreated-desc" selected>
-          Newest first
-        </option>
-        <option value="dateCreated-asc">
-          Oldest first
-        </option>
-        <option value="dateChanged-desc">
-          Recently updated first
-        </option>
-        <option value="dateChanged-asc">
-          Recently updated last
-        </option>
+        <option value="title-asc">Title - A-Z</option>
+        <option value="title-desc">Title - Z-A</option>
+        <option value="dateCreated-desc" selected>Newest first</option>
+        <option value="dateCreated-asc">Oldest first</option>
+        <option value="dateChanged-desc">Recently updated first</option>
+        <option value="dateChanged-asc">Recently updated last</option>
       </select>
     </span>
   </div>
@@ -49,26 +36,22 @@
 <script>
 import * as R from 'ramda';
 import * as _ from 'lodash';
-import { mapState } from 'vuex';
 
 export default {
   name: 'Filterbar',
 
   props: {
+    categories: Array,
     isDisabled: Boolean,
   },
-
-  computed: mapState({
-    categories: state => state.settings.categories,
-  }),
 
   methods: {
     searchBy: _.debounce(function(value) {
       this.$emit('search-by', value);
     }, 500),
 
-    filterBy(category) {
-      this.$emit('filter-by', category);
+    filterByCategory(category) {
+      this.$emit('filter-by', 'category', category);
     },
 
     sortBy(sortBy) {

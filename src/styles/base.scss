@@ -1,5 +1,9 @@
 @import url('https://www.idean.com/static/fonts/TiemposTextWeb-Regular.woff2');
 
+* {
+  box-sizing: border-box;
+}
+
 html,
 body {
   margin: 0;
@@ -78,4 +82,14 @@ body {
   font-size: 12px;
   font-weight: 200;
   line-height: 12px;
+}
+
+.error {
+  color: red;
+}
+
+input {
+  border: 1px solid #e3e3e3;
+  border-radius: 4px;
+  padding: 2px 6px;
 }

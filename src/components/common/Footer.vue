@@ -1,16 +1,15 @@
 <template>
   <footer>
-    <div class="container" v-html="settings.mainFooterContent"></div>
+    <div class="container" v-html="content"></div>
   </footer>
 </template>
 
 <script>
-import { mapState } from 'vuex';
-
 export default {
   name: 'Footer',
-
-  computed: mapState(['settings']),
+  props: {
+    content: String,
+  },
 };
 </script>
 
